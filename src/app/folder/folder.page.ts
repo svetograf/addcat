@@ -5,6 +5,8 @@ import {
 } from "@mediapipe/face_mesh";
 import {drawConnectors} from "@mediapipe/drawing_utils";
 import FloodFill from "q-floodfill";
+import {ToastController} from "@ionic/angular";
+import {ToastService} from "../services/toast.service";
 
 @Component({
   selector: 'app-folder',
@@ -33,7 +35,9 @@ export class FolderPage implements OnDestroy, AfterViewInit {
   readonly NOSE_TIP = 33;
   readonly MASK_COLOR = '#E0E0E0';
 
-  constructor() {
+  constructor(
+    private toaster: ToastService,
+  ) {
     this.faceMesh = new FaceMesh({locateFile: (file) =>
         `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`});
     this.faceMesh.setOptions({
@@ -47,8 +51,7 @@ export class FolderPage implements OnDestroy, AfterViewInit {
   }
 
   loadImageFromDevice($event: Event) {
-    this.previewImage$.next(null);
-    this.faceDetected$.next(false);
+    this.resetForm();
     const element = $event.currentTarget as HTMLInputElement;
     let fileList: FileList | null = element.files;
     if (fileList) {
@@ -66,7 +69,10 @@ export class FolderPage implements OnDestroy, AfterViewInit {
         }
         this.previewImage$.next(reader.result as string);
       };
-      reader.onerror = (error) => console.log(error);
+      reader.onerror = (error) => {
+        this.toaster.toast('Error loading the photo');
+        console.log(error);
+      };
     }
   }
 
@@ -83,7 +89,7 @@ export class FolderPage implements OnDestroy, AfterViewInit {
       photoCanvasCtx.clearRect(0, 0, this.width, this.height);
       maskCanvasCtx.clearRect(0, 0, this.width, this.height);
       photoCanvasCtx.drawImage(results.image, 0, 0, this.width, this.height);
-      if (results.multiFaceLandmarks) {
+      if (results.multiFaceLandmarks?.length) {
         this.faceDetected$.next(true);
         console.log(results.multiFaceLandmarks);
         // let FaceMesh helper draw the outline
@@ -105,6 +111,8 @@ export class FolderPage implements OnDestroy, AfterViewInit {
         maskCanvasCtx.putImageData(floodFill.imageData, 0, 0);
       } else {
         this.faceDetected$.next(false);
+        this.toaster.toast('Sorry, no face detected');
+        this.resetForm();
       }
       photoCanvasCtx.restore();
     }
@@ -124,6 +132,11 @@ export class FolderPage implements OnDestroy, AfterViewInit {
 
   ngOnDestroy(): void {
     this.previewImageSub?.unsubscribe();
+  }
+
+  private resetForm(){
+    this.previewImage$.next(null);
+    this.faceDetected$.next(false);
   }
 
   private resetCanvas(){
