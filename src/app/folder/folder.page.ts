@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {BehaviorSubject, delay, filter, Subject, switchMap, tap} from "rxjs";
+import {BehaviorSubject, filter, Subject, switchMap, tap} from "rxjs";
 import {
   FaceMesh, FACEMESH_FACE_OVAL
 } from "@mediapipe/face_mesh";
