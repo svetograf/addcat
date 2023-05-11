@@ -34,3 +34,11 @@ ion-spinner {
   width: 100px;
   height: 100px;
 }
+
+div.canvas-stack {
+  position: relative;
+  .mask_canvas {
+  }
+  .output_canvas {
+  }
+}

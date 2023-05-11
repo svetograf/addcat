@@ -4,6 +4,7 @@ import {
   FaceMesh, FACEMESH_FACE_OVAL
 } from "@mediapipe/face_mesh";
 import {drawConnectors} from "@mediapipe/drawing_utils";
+import FloodFill from "q-floodfill";
 
 @Component({
   selector: 'app-folder',
@@ -13,6 +14,8 @@ import {drawConnectors} from "@mediapipe/drawing_utils";
 export class FolderPage implements OnInit, AfterViewInit {
   @ViewChild('previewImage') previewImageRef?:ElementRef;
   @ViewChild('canvas') canvasRef?:ElementRef;
+  @ViewChild('mask') maskRef?:ElementRef;
+  @ViewChild('canvasContainer') canvasContainerRef?:ElementRef;
 
   public folder = 'AddPet';
   faceMesh: FaceMesh;
@@ -27,10 +30,12 @@ export class FolderPage implements OnInit, AfterViewInit {
   originalWidth: number = 0;
   originalHeight: number = 0;
 
+  readonly NOSETIP = 33;
+  readonly MASK_COLOR = '#E0E0E0';
+
   constructor() {
-    this.faceMesh = new FaceMesh({locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
-      }});
+    this.faceMesh = new FaceMesh({locateFile: (file) =>
+        `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`});
     this.faceMesh.setOptions({
       maxNumFaces: 1,
       refineLandmarks: true,
@@ -38,7 +43,7 @@ export class FolderPage implements OnInit, AfterViewInit {
       minTrackingConfidence: 0.5
     });
 
-    this.faceMesh.onResults(this.processResults.bind(this));
+    this.faceMesh.onResults(this.processFaceMeshResults.bind(this));
   }
 
   loadImageFromDevice($event: Event) {
@@ -65,29 +70,38 @@ export class FolderPage implements OnInit, AfterViewInit {
     }
   }
 
-  processResults(results: any){
-    console.log(results);
+  processFaceMeshResults(results: any){
     this.showSpinner$.next(false);
 
     this.width = this.previewImageRef?.nativeElement.clientWidth;
     this.height = this.previewImageRef?.nativeElement.clientHeight;
 
-    if(this.canvasRef?.nativeElement){
-      this.canvasRef.nativeElement.width = this.width;
-      this.canvasRef.nativeElement.height = this.height;
-      const canvasCtx = this.canvasRef?.nativeElement.getContext('2d');
-      canvasCtx.clearRect(0, 0, this.width, this.height);
-      canvasCtx.drawImage(
-        results.image, 0, 0, this.width, this.height);
+    if(this.canvasRef?.nativeElement && this.maskRef?.nativeElement){
+      this.resetCanvas();
+      const photoCanvasCtx = this.canvasRef?.nativeElement.getContext('2d');
+      const maskCanvasCtx = this.maskRef?.nativeElement.getContext('2d');
+      photoCanvasCtx.clearRect(0, 0, this.width, this.height);
+      maskCanvasCtx.clearRect(0, 0, this.width, this.height);
+      photoCanvasCtx.drawImage(results.image, 0, 0, this.width, this.height);
+      console.log(results.multiFaceLandmarks);
       if (results.multiFaceLandmarks) {
         this.faceDetected$.next(true);
         for (const landmarks of results.multiFaceLandmarks) {
-          drawConnectors(canvasCtx, landmarks, FACEMESH_FACE_OVAL, {color: '#E0E0E0'});
+          drawConnectors(maskCanvasCtx, landmarks, FACEMESH_FACE_OVAL, {color: '#E0E0E0'});
         }
+        const imgData = maskCanvasCtx.getImageData(0, 0, this.width, this.height)
+        const floodFill = new FloodFill(imgData)
+        floodFill.fill(
+          this.MASK_COLOR,
+          Math.floor(this.width * results.multiFaceLandmarks[0][this.NOSETIP].x),
+          Math.floor(this.height * results.multiFaceLandmarks[0][this.NOSETIP].y),
+          254)
+        maskCanvasCtx.putImageData(floodFill.imageData, 0, 0)
+
       } else {
         this.faceDetected$.next(false);
       }
-      canvasCtx.restore();
+      photoCanvasCtx.restore();
     }
   }
 
@@ -107,5 +121,16 @@ export class FolderPage implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+  }
+
+  private resetCanvas(){
+    if(this.canvasRef?.nativeElement && this.maskRef?.nativeElement && this.canvasContainerRef?.nativeElement){
+      this.canvasContainerRef.nativeElement.width = this.width;
+      this.canvasContainerRef.nativeElement.height = this.height;
+      this.canvasRef.nativeElement.width = this.width;
+      this.canvasRef.nativeElement.height = this.height;
+      this.maskRef.nativeElement.width = this.width;
+      this.maskRef.nativeElement.height = this.height;
+    }
   }
 }
