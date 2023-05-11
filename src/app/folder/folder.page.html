@@ -15,7 +15,17 @@
   </ion-header>
 
   <div id="container">
-    <strong class="capitalize">{{ folder }}</strong>
-    <p>Explore <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+
+    <ion-item>
+      <input type="file" (change)="loadImageFromDevice($event)" id="file-input"
+             accept="image/png, image/jpeg" >
+    </ion-item>
+
+    <ion-card *ngIf="(previewImage$ | async)">
+      <ion-card-content>
+        <ion-img class="img" [src]="(previewImage$ | async)" alt=""/>
+      </ion-card-content>
+    </ion-card>
+
   </div>
 </ion-content>

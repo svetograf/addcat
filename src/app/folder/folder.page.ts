@@ -1,5 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import {BehaviorSubject} from "rxjs";
 
 @Component({
   selector: 'app-folder',
@@ -7,11 +7,22 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./folder.page.scss'],
 })
 export class FolderPage implements OnInit {
-  public folder!: string;
-  private activatedRoute = inject(ActivatedRoute);
+  public folder = 'AddPet';
+  previewImage$ = new BehaviorSubject<string | null>(null)
   constructor() {}
 
   ngOnInit() {
-    this.folder = this.activatedRoute.snapshot.paramMap.get('id') as string;
+
+  }
+
+  loadImageFromDevice($event: Event) {
+    const element = $event.currentTarget as HTMLInputElement;
+    let fileList: FileList | null = element.files;
+    if (fileList) {
+      const reader = new FileReader();
+      reader.readAsDataURL(fileList[0]);
+      reader.onload = () => this.previewImage$.next(reader.result as string);
+      reader.onerror = (error) => console.log(error);
+    }
   }
 }
