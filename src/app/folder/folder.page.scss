@@ -26,3 +26,11 @@ ion-menu-button {
 #container a {
   text-decoration: none;
 }
+
+ion-spinner {
+  position: absolute;
+  left: calc(50% - 50px);
+  top: calc(50% - 50px);
+  width: 100px;
+  height: 100px;
+}
