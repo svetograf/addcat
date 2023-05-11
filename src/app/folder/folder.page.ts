@@ -83,7 +83,6 @@ export class FolderPage implements OnInit, AfterViewInit {
       photoCanvasCtx.clearRect(0, 0, this.width, this.height);
       maskCanvasCtx.clearRect(0, 0, this.width, this.height);
       photoCanvasCtx.drawImage(results.image, 0, 0, this.width, this.height);
-      console.log(results.multiFaceLandmarks);
       if (results.multiFaceLandmarks) {
         this.faceDetected$.next(true);
         for (const landmarks of results.multiFaceLandmarks) {
@@ -112,9 +111,7 @@ export class FolderPage implements OnInit, AfterViewInit {
       tap(() => this.showSpinner$.next(true)),
       switchMap(() => this.imageLoaded$),
       tap(() => {
-        console.log(`image dimensions are ${this.width}x${this.height}`);
-          console.log('send image to the mediapipe');
-          this.faceMesh.send({image: this.previewImageRef?.nativeElement});
+        this.faceMesh.send({image: this.previewImageRef?.nativeElement});
       }),
     )
     .subscribe();
