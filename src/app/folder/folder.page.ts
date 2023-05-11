@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnDestroy, ViewChild} from '@angular/core';
 import {BehaviorSubject, filter, Subject, Subscription, switchMap, tap} from "rxjs";
 import {
   FaceMesh, FACEMESH_FACE_OVAL
