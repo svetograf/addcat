@@ -1,11 +1,13 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, ViewChild} from '@angular/core';
-import {BehaviorSubject, filter, Subject, Subscription, switchMap, tap} from "rxjs";
+import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild} from '@angular/core';
+import {BehaviorSubject, catchError, filter, Subject, Subscription, switchMap, tap} from "rxjs";
 import {
   FaceMesh, FACEMESH_FACE_OVAL
 } from "@mediapipe/face_mesh";
 import {drawConnectors} from "@mediapipe/drawing_utils";
 import FloodFill from "q-floodfill";
 import {ToastService} from "../services/toast.service";
+import {HttpClient} from "@angular/common/http";
+import {environment} from "../../environments/environment";
 
 @Component({
   selector: 'app-folder',
@@ -20,6 +22,7 @@ export class FolderPage implements OnDestroy, AfterViewInit {
   folder = 'AddPet';
   faceMesh: FaceMesh;
   previewImage$ = new BehaviorSubject<string | null>(null);
+  finalImage$ = new BehaviorSubject<string | null>(null);
   imageLoaded$ = new Subject<void>();
   showSpinner$ = new BehaviorSubject(false);
   faceDetected$ = new BehaviorSubject(false);
@@ -36,6 +39,8 @@ export class FolderPage implements OnDestroy, AfterViewInit {
 
   constructor(
     private toaster: ToastService,
+    private http: HttpClient,
+    private cd: ChangeDetectorRef,
   ) {
     this.faceMesh = new FaceMesh({locateFile: (file) =>
         `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`});
@@ -75,9 +80,7 @@ export class FolderPage implements OnDestroy, AfterViewInit {
     }
   }
 
-  processFaceMeshResults(results: any){
-    this.showSpinner$.next(false);
-
+  async processFaceMeshResults(results: any){
     this.width = this.previewImageRef?.nativeElement.clientWidth;
     this.height = this.previewImageRef?.nativeElement.clientHeight;
 
@@ -119,6 +122,10 @@ export class FolderPage implements OnDestroy, AfterViewInit {
         }
         photoCanvasCtx.putImageData(photoImageData, 0, 0);
 
+        // send it to the api
+
+        await this.sendToOpenAi();
+
       } else {
         this.faceDetected$.next(false);
         this.toaster.toast('Sorry, no face detected');
@@ -144,8 +151,9 @@ export class FolderPage implements OnDestroy, AfterViewInit {
     this.previewImageSub?.unsubscribe();
   }
 
-  private resetForm(){
+  resetForm(){
     this.previewImage$.next(null);
+    this.finalImage$.next(null);
     this.faceDetected$.next(false);
   }
 
@@ -156,5 +164,32 @@ export class FolderPage implements OnDestroy, AfterViewInit {
       this.maskRef.nativeElement.width = this.width;
       this.maskRef.nativeElement.height = this.height;
     }
+  }
+
+  private async sendToOpenAi() {
+    await this.canvasRef?.nativeElement.toBlob( async (blob: Blob) => {
+      const formData = new FormData();
+      formData.append('image', blob, 'image.png');
+      formData.append('prompt', 'human is hugging a pet animal');
+      const finalImageData: any = await this.http.post('https://api.openai.com/v1/images/edits', formData, {
+        headers: {
+          authorization: `Bearer ${environment.openaiToken}`
+        }
+      }).pipe(
+        catchError((err) => {
+          console.log(err);
+          return this.toaster.toast('Request failed');
+        }),
+        tap(() => {
+
+        })
+      ).toPromise();
+
+      this.showSpinner$.next(false);
+      this.previewImage$.next(null);
+      this.finalImage$.next(finalImageData?.data?.[0]?.url);
+      console.log(finalImageData);
+      this.cd.detectChanges();
+    });
   }
 }

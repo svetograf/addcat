@@ -21,14 +21,16 @@
              accept="image/png, image/jpeg" >
     </ion-item>
 
-    <ion-card *ngIf="(previewImage$ | async)">
+    <ion-card *ngIf="(previewImage$ | async) || (finalImage$ | async)">
       <ion-card-content>
         <ion-spinner [class.ion-hide]="(showSpinner$ | async) === false"></ion-spinner>
-        <img [class.ion-hide]="(faceDetected$ | async)" class="img" #previewImage [src]="(previewImage$ | async)" alt=""/>
-        <canvas [class.ion-hide]="(faceDetected$ | async) === false" class="output_canvas" #canvas width="0px" height="0px"></canvas>
+        <img [class.ion-hide]="(finalImage$ | async)" class="img" #previewImage [src]="(previewImage$ | async)" alt=""/>
+        <img class="img" [src]="(finalImage$ | async)" alt=""/>
+        <canvas class="output_canvas ion-hide" #canvas width="0px" height="0px"></canvas>
         <canvas class="mask_canvas ion-hide" #mask width="0px" height="0px"></canvas>
       </ion-card-content>
     </ion-card>
+    <ion-button [class.ion-hide]="(finalImage$ | async) === null" (click)="resetForm()">Try again</ion-button>
 
   </div>
 </ion-content>
