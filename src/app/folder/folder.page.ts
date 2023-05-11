@@ -32,7 +32,7 @@ export class FolderPage implements OnDestroy, AfterViewInit {
   originalHeight: number = 0;
 
   readonly NOSE_TIP = 33;
-  readonly MASK_COLOR = '#E0E0E0';
+  readonly MASK_COLOR = '#FFFFFF';
 
   constructor(
     private toaster: ToastService,
@@ -108,6 +108,17 @@ export class FolderPage implements OnDestroy, AfterViewInit {
         }
 
         maskCanvasCtx.putImageData(floodFill.imageData, 0, 0);
+
+        // apply mask
+
+        const photoImageData = photoCanvasCtx.getImageData(0, 0, this.width, this.height);
+        const maskImageData = maskCanvasCtx.getImageData(0, 0, this.width, this.height);
+        for (let i = 0; i < photoImageData.data.length; i += 4) {
+          // copy mask to the alpha channel of the photo
+          photoImageData.data[i+3] = maskImageData.data[i+2];
+        }
+        photoCanvasCtx.putImageData(photoImageData, 0, 0);
+
       } else {
         this.faceDetected$.next(false);
         this.toaster.toast('Sorry, no face detected');
