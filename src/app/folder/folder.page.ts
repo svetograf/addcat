@@ -15,7 +15,6 @@ export class FolderPage implements OnDestroy, AfterViewInit {
   @ViewChild('previewImage') previewImageRef?:ElementRef;
   @ViewChild('canvas') canvasRef?:ElementRef;
   @ViewChild('mask') maskRef?:ElementRef;
-  @ViewChild('canvasContainer') canvasContainerRef?:ElementRef;
 
   folder = 'AddPet';
   faceMesh: FaceMesh;
@@ -31,14 +30,14 @@ export class FolderPage implements OnDestroy, AfterViewInit {
   originalWidth: number = 0;
   originalHeight: number = 0;
 
-  readonly NOSETIP = 33;
+  readonly NOSE_TIP = 33;
   readonly MASK_COLOR = '#E0E0E0';
 
   constructor() {
     this.faceMesh = new FaceMesh({locateFile: (file) =>
         `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`});
     this.faceMesh.setOptions({
-      maxNumFaces: 1,
+      maxNumFaces: 10,
       refineLandmarks: true,
       minDetectionConfidence: 0.5,
       minTrackingConfidence: 0.5
@@ -86,18 +85,24 @@ export class FolderPage implements OnDestroy, AfterViewInit {
       photoCanvasCtx.drawImage(results.image, 0, 0, this.width, this.height);
       if (results.multiFaceLandmarks) {
         this.faceDetected$.next(true);
+        console.log(results.multiFaceLandmarks);
+        // let FaceMesh helper draw the outline
         for (const landmarks of results.multiFaceLandmarks) {
           drawConnectors(maskCanvasCtx, landmarks, FACEMESH_FACE_OVAL, {color: '#E0E0E0'});
         }
-        const imgData = maskCanvasCtx.getImageData(0, 0, this.width, this.height)
-        const floodFill = new FloodFill(imgData)
-        floodFill.fill(
-          this.MASK_COLOR,
-          Math.floor(this.width * results.multiFaceLandmarks[0][this.NOSETIP].x),
-          Math.floor(this.height * results.multiFaceLandmarks[0][this.NOSETIP].y),
-          254)
-        maskCanvasCtx.putImageData(floodFill.imageData, 0, 0)
 
+        const imgData = maskCanvasCtx.getImageData(0, 0, this.width, this.height);
+        const floodFill = new FloodFill(imgData);
+        // then fill it solid
+        for (const landmarks of results.multiFaceLandmarks) {
+          floodFill.fill(
+            this.MASK_COLOR,
+            Math.floor(this.width * landmarks[this.NOSE_TIP].x),
+            Math.floor(this.height * landmarks[this.NOSE_TIP].y),
+            254);
+        }
+
+        maskCanvasCtx.putImageData(floodFill.imageData, 0, 0);
       } else {
         this.faceDetected$.next(false);
       }
@@ -122,9 +127,7 @@ export class FolderPage implements OnDestroy, AfterViewInit {
   }
 
   private resetCanvas(){
-    if(this.canvasRef?.nativeElement && this.maskRef?.nativeElement && this.canvasContainerRef?.nativeElement){
-      this.canvasContainerRef.nativeElement.width = this.width;
-      this.canvasContainerRef.nativeElement.height = this.height;
+    if(this.canvasRef?.nativeElement && this.maskRef?.nativeElement){
       this.canvasRef.nativeElement.width = this.width;
       this.canvasRef.nativeElement.height = this.height;
       this.maskRef.nativeElement.width = this.width;
