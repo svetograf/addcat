@@ -1,5 +1,5 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {BehaviorSubject, filter, Subject, switchMap, tap} from "rxjs";
+import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {BehaviorSubject, filter, Subject, Subscription, switchMap, tap} from "rxjs";
 import {
   FaceMesh, FACEMESH_FACE_OVAL
 } from "@mediapipe/face_mesh";
@@ -11,22 +11,23 @@ import FloodFill from "q-floodfill";
   templateUrl: './folder.page.html',
   styleUrls: ['./folder.page.scss'],
 })
-export class FolderPage implements OnInit, AfterViewInit {
+export class FolderPage implements OnDestroy, AfterViewInit {
   @ViewChild('previewImage') previewImageRef?:ElementRef;
   @ViewChild('canvas') canvasRef?:ElementRef;
   @ViewChild('mask') maskRef?:ElementRef;
   @ViewChild('canvasContainer') canvasContainerRef?:ElementRef;
 
-  public folder = 'AddPet';
+  folder = 'AddPet';
   faceMesh: FaceMesh;
   previewImage$ = new BehaviorSubject<string | null>(null);
   imageLoaded$ = new Subject<void>();
   showSpinner$ = new BehaviorSubject(false);
   faceDetected$ = new BehaviorSubject(false);
 
+  previewImageSub?: Subscription;
+
   width: number = 0;
   height: number = 0;
-
   originalWidth: number = 0;
   originalHeight: number = 0;
 
@@ -105,8 +106,7 @@ export class FolderPage implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-
-    this.previewImage$.pipe(
+    this.previewImageSub = this.previewImage$.pipe(
       filter(img => !!img),
       tap(() => this.showSpinner$.next(true)),
       switchMap(() => this.imageLoaded$),
@@ -117,7 +117,8 @@ export class FolderPage implements OnInit, AfterViewInit {
     .subscribe();
   }
 
-  ngOnInit(): void {
+  ngOnDestroy(): void {
+    this.previewImageSub?.unsubscribe();
   }
 
   private resetCanvas(){
