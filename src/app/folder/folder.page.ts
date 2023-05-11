@@ -5,7 +5,6 @@ import {
 } from "@mediapipe/face_mesh";
 import {drawConnectors} from "@mediapipe/drawing_utils";
 import FloodFill from "q-floodfill";
-import {ToastController} from "@ionic/angular";
 import {ToastService} from "../services/toast.service";
 
 @Component({
