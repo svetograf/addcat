@@ -171,6 +171,11 @@ export class FolderPage implements OnDestroy, AfterViewInit {
     }
   }
 
+  reRun(){
+    this.showSpinner$.next(true);
+     this.sendToOpenAi();
+  }
+
   private async sendToOpenAi() {
     await this.canvasRef?.nativeElement.toBlob( async (blob: Blob) => {
       const formData = new FormData();
