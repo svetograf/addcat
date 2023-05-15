@@ -23,6 +23,7 @@
     "@capacitor/core": "4.8.0",
     "@capacitor/haptics": "4.1.0",
     "@capacitor/keyboard": "4.1.1",
+    "@capacitor/share": "^5.0.2",
     "@capacitor/status-bar": "4.1.1",
     "@ionic/angular": "^7.0.0",
     "@mediapipe/drawing_utils": "^0.3.1675466124",
