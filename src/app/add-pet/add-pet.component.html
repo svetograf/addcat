@@ -29,15 +29,19 @@
       <ion-card-content>
         <ion-spinner [class.ion-hide]="(showSpinner$ | async) === false"></ion-spinner>
         <img [class.ion-hide]="(finalImage$ | async)" class="img" #previewImage [src]="(previewImage$ | async)" alt=""/>
-        <img class="img" [src]="(finalImage$ | async)" alt=""/>
+        <a href="#" [download]="finalImage$ | async" title="Click to save"><img class="img" [src]="(finalImage$ | async)" alt=""/></a>
         <canvas class="output_canvas ion-hide" #canvas width="0px" height="0px"></canvas>
         <canvas class="mask_canvas ion-hide" #mask width="0px" height="0px"></canvas>
       </ion-card-content>
     </ion-card>
-    <ion-button [class.ion-hide]="(finalImage$ | async) === null" (click)="resetForm()">Take another photo</ion-button>
-    <ion-button [class.ion-hide]="(finalImage$ | async) === null"  (click)="reRun()">
-      <ion-icon name="refresh-outline"></ion-icon>
-    </ion-button>
-
+    <div [class.ion-hide]="(finalImage$ | async) === null">
+      <ion-button (click)="resetForm()">Take another photo</ion-button>
+      <ion-button (click)="reRun()">
+        <ion-icon name="refresh-outline"></ion-icon>
+      </ion-button>
+      <ion-button *ngIf="!platform.isWeb && platform.canShare" type="secondary" (click)="share()">
+        <ion-icon name="share"></ion-icon>
+      </ion-button>
+    </div>
   </div>
 </ion-content>

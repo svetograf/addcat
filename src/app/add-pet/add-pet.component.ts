@@ -8,13 +8,15 @@ import FloodFill from "q-floodfill";
 import {ToastService} from "../services/toast.service";
 import {HttpClient} from "@angular/common/http";
 import {environment} from "../../environments/environment";
+import {Share} from "@capacitor/share";
+import {PlatformService} from "../services/platform.service";
 
 @Component({
-  selector: 'app-folder',
-  templateUrl: './folder.page.html',
-  styleUrls: ['./folder.page.scss'],
+  selector: 'app-add-pet',
+  templateUrl: './add-pet.component.html',
+  styleUrls: ['./add-pet.component.scss'],
 })
-export class FolderPage implements OnDestroy, AfterViewInit {
+export class AddPetComponent implements OnDestroy, AfterViewInit {
   @ViewChild('previewImage') previewImageRef?:ElementRef;
   @ViewChild('canvas') canvasRef?:ElementRef;
   @ViewChild('mask') maskRef?:ElementRef;
@@ -44,6 +46,7 @@ export class FolderPage implements OnDestroy, AfterViewInit {
     private toaster: ToastService,
     private http: HttpClient,
     private cd: ChangeDetectorRef,
+    public platform: PlatformService,
   ) {
     this.faceMesh = new FaceMesh({locateFile: (file) =>
         `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`});
@@ -212,5 +215,15 @@ export class FolderPage implements OnDestroy, AfterViewInit {
       this.height = 1000;
       this.width = Math.floor(this.originalWidth/this.originalHeight * 1000);
     }
+  }
+
+  async share() {
+    await Share.share({
+      title: 'Look at this photo AddPet edited for me',
+      text: 'The only real thing on it is face',
+      url: 'https://github.com/svetograf/addcat/',
+      dialogTitle: 'Share',
+      files: [this.finalImage$.value ?? '']
+    });
   }
 }
