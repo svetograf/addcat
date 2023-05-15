@@ -31,6 +31,9 @@ export class FolderPage implements OnDestroy, AfterViewInit {
 
   width: number = 0;
   height: number = 0;
+  get maxDimensions(){
+    return Math.max(this.width, this.height);
+  }
   originalWidth: number = 0;
   originalHeight: number = 0;
 
@@ -120,6 +123,8 @@ export class FolderPage implements OnDestroy, AfterViewInit {
           // copy mask to the alpha channel of the photo
           photoImageData.data[i+3] = maskImageData.data[i+2];
         }
+        this.canvasRef.nativeElement.width = this.maxDimensions;
+        this.canvasRef.nativeElement.height = this.maxDimensions;
         photoCanvasCtx.putImageData(photoImageData, 0, 0);
 
         // send it to the api
@@ -190,6 +195,10 @@ export class FolderPage implements OnDestroy, AfterViewInit {
       this.finalImage$.next(finalImageData?.data?.[0]?.url);
       console.log(finalImageData);
       this.cd.detectChanges();
+
+      // resize before sending
+      // add some interactive captions for user to wait in comfort
     });
   }
+
 }

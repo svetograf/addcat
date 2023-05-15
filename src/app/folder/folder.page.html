@@ -17,7 +17,7 @@
   <div id="container">
 
     <ion-item>
-      <input type="file" (change)="loadImageFromDevice($event)" id="file-input"
+      <input type="file" (change)="loadImageFromDevice($event)" [(ngModel)]="file" id="file-input"
              accept="image/png, image/jpeg" >
     </ion-item>
 
