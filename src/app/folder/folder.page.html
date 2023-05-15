@@ -16,10 +16,14 @@
 
   <div id="container">
 
-    <ion-item>
-      <input type="file" (change)="loadImageFromDevice($event)" id="file-input"
-             accept="image/png, image/jpeg" >
-    </ion-item>
+    <ion-card *ngIf="(finalImage$ | async) === null">
+      <ion-card-content>
+        <ion-item>
+          <input type="file" (change)="loadImageFromDevice($event)" id="file-input"
+                 accept="image/png, image/jpeg" >
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
 
     <ion-card *ngIf="(previewImage$ | async) || (finalImage$ | async)">
       <ion-card-content>
@@ -30,7 +34,10 @@
         <canvas class="mask_canvas ion-hide" #mask width="0px" height="0px"></canvas>
       </ion-card-content>
     </ion-card>
-    <ion-button [class.ion-hide]="(finalImage$ | async) === null" (click)="resetForm()">Try again</ion-button>
+    <ion-button [class.ion-hide]="(finalImage$ | async) === null" (click)="resetForm()">Take another photo</ion-button>
+    <ion-button [class.ion-hide]="(finalImage$ | async) === null"  (click)="reRun()">
+      <ion-icon name="refresh-outline"></ion-icon>
+    </ion-button>
 
   </div>
 </ion-content>
