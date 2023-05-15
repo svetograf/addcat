@@ -69,6 +69,7 @@ export class FolderPage implements OnDestroy, AfterViewInit {
         img.onload = () => {
           this.originalWidth = img.width ?? 0;
           this.originalHeight = img.height ?? 0;
+          this.calculateCanvasSize();
           this.imageLoaded$.next();
         }
         if (reader.result){
@@ -84,9 +85,6 @@ export class FolderPage implements OnDestroy, AfterViewInit {
   }
 
   async processFaceMeshResults(results: any){
-    this.width = this.previewImageRef?.nativeElement.clientWidth;
-    this.height = this.previewImageRef?.nativeElement.clientHeight;
-
     if(this.canvasRef?.nativeElement && this.maskRef?.nativeElement){
       this.resetCanvas();
       const photoCanvasCtx = this.canvasRef?.nativeElement.getContext('2d');
@@ -199,11 +197,20 @@ export class FolderPage implements OnDestroy, AfterViewInit {
       this.previewImage$.next(null);
       this.finalImage$.next(finalImageData?.data?.[0]?.url);
       console.log(finalImageData);
+      // todo find out why
       this.cd.detectChanges();
 
-      // resize before sending
-      // add some interactive captions for user to wait in comfort
+      // todo add some interactive captions for user to wait in comfort
     });
   }
 
+  private calculateCanvasSize(){
+    if(this.originalWidth > this.originalHeight){
+      this.width = 1000;
+      this.height = Math.floor(this.originalHeight/this.originalWidth * 1000);
+    } else {
+      this.height = 1000;
+      this.width = Math.floor(this.originalWidth/this.originalHeight * 1000);
+    }
+  }
 }
