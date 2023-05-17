@@ -9,6 +9,10 @@ and cut out faces via canvas manipulations. On the last stage
 transparent square image with faces on it is sent to the
 OpenAI API and the resulting image is acquired.
 
+P.S. Don't put your blame on me for some ugly animals.
+Use it just for fun.
+Remember that AI is still learning =)
+
 # To start the app
 
 1. Clone the repo
