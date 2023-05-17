@@ -38,3 +38,21 @@ ion-spinner {
 .output_canvas {
   border: 1px solid red;
 }
+
+.fade-out{
+  opacity: .5;
+}
+
+#file-input{
+  position: absolute;
+  opacity: 0;
+}
+
+.btn-label{
+  margin: 2em auto;
+  ion-button{
+    width: 2.8em;
+    --padding-start: 0;
+    --padding-end: 0;
+  }
+}
