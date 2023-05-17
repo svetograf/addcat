@@ -1,0 +1,36 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>About</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">About</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div id="container">
+
+    <ion-card>
+      <ion-card-content>
+        <p>
+          This is a demonstration app written by Maxim Shevchenko
+          to demonstrate current AI abilities in a field of image processing.
+        </p>
+        <p>
+          On the first stage image is being processed by mediapipe/facemesh
+          to detect faces. Then results are used to generate masks
+          and cut out faces via canvas manipulations. On the last stage
+          transparent square image with faces on it is sent to the
+          OpenAI API and the resulting image is acquired.
+        </p>
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+</ion-content>

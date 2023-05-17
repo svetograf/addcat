@@ -10,6 +10,10 @@ const routes: Routes = [
   {
     path: 'add-pet',
     loadChildren: () => import('./add-pet/add-pet.module').then(m => m.AddPetModule)
+  },
+  {
+    path: 'about',
+    loadChildren: () => import('./about/about.module').then(m => m.AboutModule)
   }
 ];
 
