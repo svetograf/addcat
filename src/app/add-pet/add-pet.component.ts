@@ -10,6 +10,8 @@ import {HttpClient} from "@angular/common/http";
 import {environment} from "../../environments/environment";
 import {Share} from "@capacitor/share";
 import {PlatformService} from "../services/platform.service";
+// @ts-ignore
+import {saveAs} from "file-saver";
 
 @Component({
   selector: 'app-add-pet',
@@ -23,6 +25,7 @@ export class AddPetComponent implements OnDestroy, AfterViewInit {
 
   folder = 'AddPet';
   faceMesh: FaceMesh;
+  saveFile$ = new Subject<null>();
   previewImage$ = new BehaviorSubject<string | null>(null);
   finalImage$ = new BehaviorSubject<string | null>(null);
   imageLoaded$ = new Subject<void>();
@@ -58,6 +61,10 @@ export class AddPetComponent implements OnDestroy, AfterViewInit {
     });
 
     this.faceMesh.onResults(this.processFaceMeshResults.bind(this));
+
+    this.saveFile$.pipe(
+      switchMap(() => this.finalImage$)
+    ).subscribe((fileName) => saveAs(fileName, 'ai-image.png'));
   }
 
   loadImageFromDevice($event: Event) {
@@ -181,7 +188,7 @@ export class AddPetComponent implements OnDestroy, AfterViewInit {
     await this.canvasRef?.nativeElement.toBlob( async (blob: Blob) => {
       const formData = new FormData();
       formData.append('image', blob, 'image.png');
-      formData.append('prompt', 'human is hugging a rose bouquet');
+      formData.append('prompt', 'human is hugging a pet animal');
       const finalImageData: any = await this.http.post('https://api.openai.com/v1/images/edits', formData, {
         headers: {
           authorization: `Bearer ${environment.openaiToken}`
@@ -220,7 +227,7 @@ export class AddPetComponent implements OnDestroy, AfterViewInit {
   async share() {
     await Share.share({
       title: 'Look at this photo AddPet edited for me',
-      text: 'The only real thing on it is face',
+      text: 'The only real thing on it is a face',
       url: 'https://github.com/svetograf/addcat/',
       dialogTitle: 'Share',
       files: [this.finalImage$.value ?? '']
