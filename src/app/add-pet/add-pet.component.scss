@@ -43,14 +43,15 @@ ion-spinner {
   opacity: .5;
 }
 
-#file-input{
-  position: absolute;
-  opacity: 0;
-}
 
-.btn-label{
-  margin: 2em auto;
-  ion-button{
+.file-input-container{
+  padding-bottom: 1em;
+  #file-input{
+    position: absolute;
+    opacity: 0;
+  }
+  ion-button.file-input-button{
+    margin: 2em auto;
     width: 2.8em;
     --padding-start: 0;
     --padding-end: 0;

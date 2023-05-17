@@ -181,7 +181,7 @@ export class AddPetComponent implements OnDestroy, AfterViewInit {
     await this.canvasRef?.nativeElement.toBlob( async (blob: Blob) => {
       const formData = new FormData();
       formData.append('image', blob, 'image.png');
-      formData.append('prompt', 'human is hugging a pet animal');
+      formData.append('prompt', 'human is hugging a rose bouquet');
       const finalImageData: any = await this.http.post('https://api.openai.com/v1/images/edits', formData, {
         headers: {
           authorization: `Bearer ${environment.openaiToken}`

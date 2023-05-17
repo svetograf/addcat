@@ -16,17 +16,13 @@
 
   <div id="container">
 
-    <ion-card [class.ion-hide]="(showSpinner$ | async) || (finalImage$ | async)">
+    <ion-card class="file-input-container" [class.ion-hide]="(showSpinner$ | async) || (finalImage$ | async)">
       <ion-card-content>
-        <ion-item>
-          <label class="btn-label" for="file-input" >
-            <ion-button size="large" shape="round">
-              <ion-icon name="camera"></ion-icon>
-            </ion-button>
-          </label>
-          <input type="file" id="file-input" (change)="loadImageFromDevice($event)"
+        <ion-button (click)="fileInput.click()" class="file-input-button" size="large" shape="round">
+          <ion-icon name="camera"></ion-icon>
+        </ion-button>
+        <input type="file" #fileInput id="file-input" (change)="loadImageFromDevice($event)"
                  accept="image/png, image/jpeg" >
-        </ion-item>
         <h1>
           Chose a selfie to upload. Use close-up image with your face(s) on it.
         </h1>
