@@ -107,7 +107,7 @@ export class AddPetComponent implements OnDestroy, AfterViewInit {
         console.log(results.multiFaceLandmarks);
         // let FaceMesh helper draw the outline
         for (const landmarks of results.multiFaceLandmarks) {
-          drawConnectors(maskCanvasCtx, landmarks, FACEMESH_FACE_OVAL, {color: '#E0E0E0'});
+          drawConnectors(maskCanvasCtx, landmarks, FACEMESH_FACE_OVAL, {color: this.MASK_COLOR});
         }
 
         const imgData = maskCanvasCtx.getImageData(0, 0, this.width, this.height);
