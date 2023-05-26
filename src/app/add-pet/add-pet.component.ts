@@ -32,7 +32,7 @@ export class AddPetComponent implements OnDestroy, AfterViewInit {
   imageLoaded$ = new Subject<void>();
   showSpinner$: BehaviorSubject<any> = new BehaviorSubject(null);
   faceDetected$ = new BehaviorSubject(false);
-  spinnerProgress$ = interval(50).pipe(
+  spinnerProgress$ = interval(1000).pipe(
     switchMap(() => this.showSpinner$),
     filter(a => a),
     map(date => {
