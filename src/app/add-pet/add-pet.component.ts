@@ -19,7 +19,7 @@ import {saveAs} from "file-saver";
   styleUrls: ['./add-pet.component.scss'],
 })
 export class AddPetComponent implements OnDestroy, AfterViewInit {
-  readonly ESTIMATED_TIME = 15; // seconds
+  readonly ESTIMATED_TIME = 20; // seconds
   @ViewChild('previewImage') previewImageRef?:ElementRef;
   @ViewChild('canvas') canvasRef?:ElementRef;
   @ViewChild('mask') maskRef?:ElementRef;
