@@ -81,7 +81,7 @@ export class AddPetComponent implements OnDestroy, AfterViewInit {
     this.resetForm();
     const element = $event.currentTarget as HTMLInputElement;
     let fileList: FileList | null = element.files;
-    if (fileList) {
+    if (fileList && fileList[0]) {
       const reader = new FileReader();
       reader.readAsDataURL(fileList[0]);
       reader.onload = () => {
