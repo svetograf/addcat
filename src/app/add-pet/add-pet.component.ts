@@ -1,5 +1,16 @@
 import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild} from '@angular/core';
-import {BehaviorSubject, catchError, filter, interval, map, Subject, Subscription, switchMap, tap} from "rxjs";
+import {
+  BehaviorSubject,
+  catchError,
+  filter,
+  firstValueFrom,
+  interval,
+  map,
+  Subject,
+  Subscription,
+  switchMap,
+  tap
+} from "rxjs";
 import {FaceMesh, FACEMESH_FACE_OVAL} from "@mediapipe/face_mesh";
 import {drawConnectors} from "@mediapipe/drawing_utils";
 import FloodFill from "q-floodfill";
@@ -150,7 +161,7 @@ export class AddPetComponent implements OnDestroy, AfterViewInit {
         await this.sendToOpenAi();
 
       } else {
-        this.faceDetected$.next(false);
+        this.resetForm();
         this.toaster.toast('Sorry, no face detected');
         this.resetForm();
       }
@@ -178,6 +189,7 @@ export class AddPetComponent implements OnDestroy, AfterViewInit {
     this.previewImage$.next(null);
     this.finalImage$.next(null);
     this.faceDetected$.next(false);
+    this.showSpinner$.next(null);
   }
 
   private resetCanvas(){
@@ -199,19 +211,21 @@ export class AddPetComponent implements OnDestroy, AfterViewInit {
       const formData = new FormData();
       formData.append('image', blob, 'image.png');
       formData.append('prompt', 'human is hugging a pet animal');
-      const finalImageData: any = await this.http.post('https://api.openai.com/v1/images/edits', formData, {
-        headers: {
-          authorization: `Bearer ${environment.openaiToken}`
-        }
-      }).pipe(
-        catchError((err) => {
-          console.log(err);
-          return this.toaster.toast('Request failed');
-        }),
-        tap(() => {
-
-        })
-      ).toPromise();
+      const finalImageData: any = await firstValueFrom(
+        this.http.post('https://api.openai.com/v1/images/edits', formData, {
+          headers: {
+            authorization: `Bearer ${environment.openaiToken}`
+          }
+        }).pipe(
+          catchError((err) => {
+            console.log(err);
+            this.resetForm();
+            return this.toaster.toast('Request failed');
+          }),
+          tap(() => {
+          })
+        )
+      );
 
       this.showSpinner$.next(null);
       this.previewImage$.next(null);
