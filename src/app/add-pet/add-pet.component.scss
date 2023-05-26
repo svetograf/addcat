@@ -57,3 +57,12 @@ ion-spinner {
     --padding-end: 0;
   }
 }
+
+.progress {
+  width: 50vw;
+  height: 50vw;
+  left: 25vw;
+  border-radius: 50%;
+  top: calc(50vh - 25vw);
+  position: absolute;
+}

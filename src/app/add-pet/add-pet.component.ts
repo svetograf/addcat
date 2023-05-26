@@ -1,8 +1,6 @@
 import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild} from '@angular/core';
-import {BehaviorSubject, catchError, filter, Subject, Subscription, switchMap, tap} from "rxjs";
-import {
-  FaceMesh, FACEMESH_FACE_OVAL
-} from "@mediapipe/face_mesh";
+import {BehaviorSubject, catchError, filter, interval, map, Subject, Subscription, switchMap, tap} from "rxjs";
+import {FaceMesh, FACEMESH_FACE_OVAL} from "@mediapipe/face_mesh";
 import {drawConnectors} from "@mediapipe/drawing_utils";
 import FloodFill from "q-floodfill";
 import {ToastService} from "../services/toast.service";
@@ -10,6 +8,8 @@ import {HttpClient} from "@angular/common/http";
 import {environment} from "../../environments/environment";
 import {Share} from "@capacitor/share";
 import {PlatformService} from "../services/platform.service";
+import * as moment from "moment";
+
 // @ts-ignore
 import {saveAs} from "file-saver";
 
@@ -19,6 +19,7 @@ import {saveAs} from "file-saver";
   styleUrls: ['./add-pet.component.scss'],
 })
 export class AddPetComponent implements OnDestroy, AfterViewInit {
+  readonly ESTIMATED_TIME = 15; // seconds
   @ViewChild('previewImage') previewImageRef?:ElementRef;
   @ViewChild('canvas') canvasRef?:ElementRef;
   @ViewChild('mask') maskRef?:ElementRef;
@@ -29,8 +30,17 @@ export class AddPetComponent implements OnDestroy, AfterViewInit {
   previewImage$ = new BehaviorSubject<string | null>(null);
   finalImage$ = new BehaviorSubject<string | null>(null);
   imageLoaded$ = new Subject<void>();
-  showSpinner$ = new BehaviorSubject(false);
+  showSpinner$: BehaviorSubject<any> = new BehaviorSubject(null);
   faceDetected$ = new BehaviorSubject(false);
+  spinnerProgress$ = interval(50).pipe(
+    switchMap(() => this.showSpinner$),
+    filter(a => a),
+    map(date => {
+      const start = moment(date);
+      const seconds = moment().diff(start, 'seconds');
+      return  Math.log(seconds) / Math.log(this.ESTIMATED_TIME);
+    })
+  );
 
   previewImageSub?: Subscription;
 
@@ -151,7 +161,7 @@ export class AddPetComponent implements OnDestroy, AfterViewInit {
   ngAfterViewInit(): void {
     this.previewImageSub = this.previewImage$.pipe(
       filter(img => !!img),
-      tap(() => this.showSpinner$.next(true)),
+      tap(() => this.showSpinner$.next(new Date())),
       switchMap(() => this.imageLoaded$),
       tap(() => {
         this.faceMesh.send({image: this.previewImageRef?.nativeElement});
@@ -180,7 +190,7 @@ export class AddPetComponent implements OnDestroy, AfterViewInit {
   }
 
   reRun(){
-    this.showSpinner$.next(true);
+    this.showSpinner$.next(new Date());
      this.sendToOpenAi();
   }
 
@@ -203,14 +213,12 @@ export class AddPetComponent implements OnDestroy, AfterViewInit {
         })
       ).toPromise();
 
-      this.showSpinner$.next(false);
+      this.showSpinner$.next(null);
       this.previewImage$.next(null);
       this.finalImage$.next(finalImageData?.data?.[0]?.url);
       console.log(finalImageData);
       // todo find out why
       this.cd.detectChanges();
-
-      // todo add some interactive captions for user to wait in comfort
     });
   }
 

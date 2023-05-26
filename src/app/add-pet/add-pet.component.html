@@ -31,7 +31,6 @@
 
     <ion-card *ngIf="(previewImage$ | async) || (finalImage$ | async)">
       <ion-card-content>
-        <ion-spinner [class.ion-hide]="(showSpinner$ | async) === false"></ion-spinner>
         <img [class.fade-out]="(showSpinner$ | async)" [class.ion-hide]="(finalImage$ | async)" class="img" #previewImage [src]="(previewImage$ | async)" alt=""/>
         <img title="Click to save" (click)="saveFile$.next(null)" class="img" [src]="(finalImage$ | async)" alt=""/>
         <canvas class="output_canvas ion-hide" #canvas width="0px" height="0px"></canvas>
@@ -48,4 +47,6 @@
       </ion-button>
     </div>
   </div>
+
+  <ion-progress-bar *ngIf="showSpinner$ | async" [value]="spinnerProgress$ | async"></ion-progress-bar>
 </ion-content>
