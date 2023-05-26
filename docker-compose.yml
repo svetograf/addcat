@@ -1,7 +1,7 @@
 version: '3.5'
 services:
   frontend:
-    image: 2muchcoffee/add-pet:1.2
+    image: 2muchcoffee/add-pet:1.3
     env_file: .env
     environment:
       NO_COLOR: 'true'
