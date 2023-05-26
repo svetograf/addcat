@@ -1,0 +1,15 @@
+version: '3.5'
+services:
+  frontend:
+    image: 2muchcoffee/add-pet:1.3
+    env_file: .env
+    environment:
+      NO_COLOR: 'true'
+    ports:
+      - 4565:80
+    restart: always
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.node-1 == true

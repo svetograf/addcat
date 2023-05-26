@@ -5,8 +5,11 @@
   "homepage": "https://ionicframework.com/",
   "scripts": {
     "ng": "ng",
+    "prestart": "ts-node set-env.ts",
     "start": "ng serve",
+    "prebuild": "ts-node set-env.ts",
     "build": "ng build",
+    "docker:deploy": "sh docker-deploy.sh",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint"
@@ -28,6 +31,7 @@
     "@ionic/angular": "^7.0.0",
     "@mediapipe/drawing_utils": "^0.3.1675466124",
     "@mediapipe/face_mesh": "^0.4.1633559619",
+    "dotenv": "^16.0.3",
     "file-saver": "^2.0.5",
     "ionicons": "^7.0.0",
     "q-floodfill": "^1.3.1",
